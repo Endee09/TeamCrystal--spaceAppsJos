@@ -1,2 +1,2 @@
 # TeamCrystal--spaceAppsJos
-astronaut jacket
+Search and Rescue jacket
