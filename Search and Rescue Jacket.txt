@@ -1,0 +1,74 @@
+//libraries for one wire thermometer DS18B20
+#include <OneWire.h> 
+#include <DallasTemperature.h>
+#include <virtuabotixRTC.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+
+// Initialize pins
+LiquidCrystal_I2C lcd(0x27,2,1,0,4,5,6,7,3, POSITIVE);
+// Creation of the Real Time Clock Object
+//SCLK -> 6, I/O -> 7, CE -> 8
+virtuabotixRTC myRTC(6, 7, 8);
+//Assign to pin 10 of your Arduino to the DS18B20
+#define ONE_WIRE_BUS 10
+//Create a onewire instanace
+OneWire oneWire(ONE_WIRE_BUS);
+//Declare a DS18B20 Instance and assing the OneWire reference to it.
+DallasTemperature sensors(&oneWire);
+
+//Variables
+float temp = 0; 
+int greenPin = 12;
+int redPin = 13;
+
+
+//function to get body temperature
+float getBodyTemp(){
+  sensors.requestTemperatures(); // Tell the DS18B20 to get make a measurement
+  float bodyTemp = sensors.getTempCByIndex(0); // Get that temperature and print it.
+  return bodyTemp; 
+}
+
+
+void setup()
+{
+    lcd.begin (20,4);
+    lcd.clear();
+    
+    lcd.setCursor(0,1);
+    lcd.print("BODY TEMP :");
+    lcd.setCursor(18,1);
+    lcd.print((char)223);
+    lcd.setCursor(19,1);
+    lcd.print("C");
+ 
+    
+    // seconds, minutes, hours, day of the week, day of the month, month, year
+    myRTC.setDS1302Time(00, 39, 9, 6, 26, 2, 2016);
+    //Start the DallasTemperature Library
+    sensors.begin();  
+  
+  pinMode(greenPin, OUTPUT);  //green
+  pinMode(redPin, OUTPUT);  //red
+   
+}
+
+void loop()
+{    
+  
+    temp = getBodyTemp();
+    lcd.setCursor(12,1);
+    lcd.print(temp);
+    
+    if(temp > 30 && temp < 40){
+      digitalWrite(redPin, HIGH);
+      digitalWrite(greenPin, LOW);
+    }
+    else{
+      digitalWrite(redPin, LOW);
+      digitalWrite(greenPin, HIGH);
+    }
+     
+}
